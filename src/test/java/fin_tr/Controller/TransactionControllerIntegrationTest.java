@@ -14,12 +14,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = FinTrApplication.class)
 @AutoConfigureMockMvc
+@Transactional
 public class TransactionControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
@@ -34,6 +36,7 @@ public class TransactionControllerIntegrationTest {
         testUser = new User();
         testUser.setUsername("egorTEST");
         testUser.setPassword("pass");
+        testUser.setEmail("test@example.com");
         userRepository.save(testUser);
     }
     @Test
