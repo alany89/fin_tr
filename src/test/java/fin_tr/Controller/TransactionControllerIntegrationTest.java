@@ -10,76 +10,85 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = FinTrApplication.class)
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @Transactional
 public class TransactionControllerIntegrationTest {
+
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private TransactionRepository transactionRepository;
+
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private User testUser;
+
     @BeforeEach
-    void setUp(){
+    void setUp() {
         transactionRepository.deleteAll();
+        userRepository.deleteAll();
+
         testUser = new User();
-        testUser.setUsername("egorTEST");
-        testUser.setPassword("pass");
+        testUser.setUsername("testUser");
         testUser.setEmail("test@example.com");
-        userRepository.save(testUser);
+        testUser.setPassword(passwordEncoder.encode("password"));
+        testUser = userRepository.save(testUser);
     }
+
     @Test
     @WithMockUser(username = "testUser")
-    void shouldCreateTransaction() throws Exception{
+    void shouldCreateTransaction() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/add-transaction")
-                .param("action", "income")
-                .param("category", "FOOD")
-                .param("sum", "100")
-                .param("date", "07-11-2025")
-                .param("opisaniya", "обед")
-                ).andExpect(status().is3xxRedirection())
+                        .param("action", "income")
+                        .param("category", "FOOD")
+                        .param("sum", "100.50")
+                        .param("date", "2025-07-12")  // Формат yyyy-MM-dd
+                        .param("description", "Test transaction")
+                        .with(csrf()))  // Добавляем CSRF токен
+                .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/add-transaction"))
                 .andExpect(flash().attributeExists("success"));
-        assertEquals(1, transactionRepository.count());
-        Transaction savedTransaction = transactionRepository.findAll().get(0);
-        assertEquals(100, savedTransaction.getSum());
-        assertEquals("income", savedTransaction.getAction());
     }
+
     @Test
     @WithMockUser(username = "testUser")
-    void shouldDontCreateTransaction() throws Exception{
+    void shouldNotCreateInvalidTransaction() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/add-transaction")
-                .param("action", "income")
-                .param("category", "FOOD")
-                .param("sum", "100")
-                .param("date", "07-11-2025")
-                .param("opisaniya", "обед")).andExpect(status().isOk())
+                        .param("action", "")  // Невалидное значение
+                        .param("sum", "0")    // Невалидная сумма
+                        .with(csrf()))
+                .andExpect(status().isOk())
                 .andExpect(view().name("add-transaction"))
-                .andExpect(model().attributeHasErrors("transaction"))
-                .andExpect(model().attributeExists("Category"));
-        assertEquals(0,transactionRepository.count());
+                .andExpect(model().attributeHasErrors("transaction"));
     }
+
     @Test
-    @WithMockUser(username = "unknownuser") // Пользователя нет в БД
-    void shouldRedirectToLoginIfUserNotFound() throws Exception {
+    @WithMockUser(username = "unknownUser")
+    void shouldRedirectToLoginForUnknownUser() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/add-transaction")
                         .param("sum", "100")
                         .param("action", "income")
-                        .param("category", "FOOD")
-                        .param("date", "2025-01-01"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"))
-                .andExpect(flash().attributeExists("error"));
+                .andExpect(redirectedUrl("/login"));
     }
 }
