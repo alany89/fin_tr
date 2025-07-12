@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Финансовый трекер | Доходы</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+        --primary: #6C5CE7;
+        --primary-dark: #5649C0;
+        --secondary: #00CEFF;
+        --success: #00D27F;
+        --danger: #FF3D71;
+        --warning: #FFAA00;
+        --text-primary: #2D3436;
+        --text-secondary: #636E72;
+        --bg-light: #F5F6FA;
+        --bg-card: #FFFFFF;
+        --border: #DFE6E9;
+        --white: #FFFFFF;
+
+        /* Темная тема */
+        --dark-primary: #A78BFA;
+        --dark-secondary: #67E8F9;
+        --dark-text-primary: #E2E8F0;
+        --dark-text-secondary: #94A3B8;
+        --dark-bg: #0F172A;
+        --dark-bg-card: #1E293B;
+        --dark-border: #334155;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    body {
+        background-color: var(--bg-light);
+        color: var(--text-primary);
+        font-family: 'Jost', sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+    }
+
+    body.dark-mode {
+        background-color: var(--dark-bg);
+        color: var(--dark-text-primary);
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Хедер */
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+    }
+
+    body.dark-mode .header {
+        border-bottom-color: var(--dark-border);
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Кнопка назад */
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        border-radius: 50%;
+        background-color: rgba(108, 92, 231, 0.1);
+        color: var(--primary);
+        margin-right: 15px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    body.dark-mode .back-button {
+        background-color: rgba(167, 139, 250, 0.1);
+        color: var(--dark-primary);
+    }
+
+    .back-button:hover {
+        background-color: rgba(108, 92, 231, 0.2);
+        transform: translateY(-2px);
+    }
+
+    body.dark-mode .back-button:hover {
+        background-color: rgba(167, 139, 250, 0.2);
+    }
+
+    /* Заголовок */
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+        display: inline-block;
+    }
+
+    body.dark-mode .page-title {
+        background: linear-gradient(90deg, var(--dark-primary), var(--dark-secondary));
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        border-radius: 3px;
+    }
+
+    body.dark-mode .page-title::after {
+        background: linear-gradient(90deg, var(--dark-primary), var(--dark-secondary));
+    }
+
+    /* Навигация по месяцам */
+    .month-navigation {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .month-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    body.dark-mode .month-title {
+        color: var(--dark-text-primary);
+    }
+
+    .nav-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--primary);
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    body.dark-mode .nav-button {
+        color: var(--dark-primary);
+    }
+
+    .nav-button:hover {
+        background-color: rgba(108, 92, 231, 0.1);
+    }
+
+    body.dark-mode .nav-button:hover {
+        background-color: rgba(167, 139, 250, 0.1);
+    }
+
+    /* Основные карточки */
+    .card {
+        background-color: var(--bg-card);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+        position: relative;
+    }
+
+    body.dark-mode .card {
+        background-color: var(--dark-bg-card);
+        border-color: var(--dark-border);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        color: var(--primary);
+    }
+
+    body.dark-mode .card-title {
+        color: var(--dark-primary);
+    }
+
+    /* Диаграмма */
+    .chart-container {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    /* Список доходов */
+    .income-list {
+        margin-top: 30px;
+    }
+
+    .income-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    body.dark-mode .income-item {
+        border-bottom-color: var(--dark-border);
+    }
+
+    .income-date {
+        color: var(--text-secondary);
+    }
+
+    body.dark-mode .income-date {
+        color: var(--dark-text-secondary);
+    }
+
+    .income-category {
+        font-weight: 500;
+    }
+
+    .income-amount {
+        color: var(--success);
+        font-weight: 600;
+    }
+
+    .total-income {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 20px;
+        text-align: right;
+        color: var(--success);
+    }
+
+    .no-data {
+        text-align: center;
+        color: var(--text-secondary);
+        padding: 20px;
+    }
+
+    body.dark-mode .no-data {
+        color: var(--dark-text-secondary);
+    }
+
+    /* Кнопки */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 28px;
+        border: none;
+        border-radius: 12px;
+        font-family: 'Jost', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        margin: 0 10px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: var(--white);
+        box-shadow: 0 4px 6px rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(108, 92, 231, 0.3);
+    }
+
+    body.dark-mode .btn-primary {
+        background-color: var(--dark-primary);
+        box-shadow: 0 4px 6px rgba(167, 139, 250, 0.2);
+    }
+
+    body.dark-mode .btn-primary:hover {
+        background-color: #8B5CF6;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .container {
+            padding: 15px;
+        }
+
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .month-navigation {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div style="display: flex; align-items: center;">
+      <a href="/home" class="back-button">
+        <span class="material-icons">arrow_back</span>
+      </a>
+      <h1 class="page-title">Доходы</h1>
+    </div>
+
+    <div class="header-actions">
+      <div class="month-navigation">
+        <a th:href="@{/dohody(year=${prevYearMonth.year},month=${prevYearMonth.monthValue})}"
+           class="nav-button">
+          <span class="material-icons">arrow_back</span>
+        </a>
+        <div class="month-title" th:text="${#temporals.format(currentYearMonth.atDay(1), 'MMMM yyyy', new java.util.Locale('ru'))}"></div>
+        <a th:href="@{/dohody(year=${nextYearMonth.year},month=${nextYearMonth.monthValue})}"
+           class="nav-button">
+          <span class="material-icons">arrow_forward</span>
+        </a>
+      </div>
+
+      <label class="theme-switcher">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">Распределение доходов по категориям</h2>
+    <div th:if="${incomeByCategory != null and not incomeByCategory.isEmpty()}">
+      <div class="chart-container">
+        <canvas id="incomeChart"></canvas>
+      </div>
+    </div>
+    <div th:if="${incomeByCategory == null or incomeByCategory.isEmpty()}" class="no-data">
+      Нет данных для отображения
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">Доходы за месяц</h2>
+    <div class="income-list">
+      <div th:each="income : ${incomes ?: #lists.emptyList()}" class="income-item">
+        <div>
+          <span class="income-date"
+                th:text="${income.date != null ? #temporals.format(income.date, 'dd.MM.yyyy') : 'Нет даты'}"></span>
+          <span> - </span>
+          <span class="income-category"
+                th:text="${income.category != null ? income.category.displayName : 'Без категории'}"></span>
+          <span> - </span>
+          <span th:text="${income.opisaniya != null ? income.opisaniya : ''}"></span>
+        </div>
+        <div class="income-amount" th:text="${income.sum != null ? income.sum + ' ₽' : '0 ₽'}"></div>
+      </div>
+      <div th:if="${incomes == null or incomes.empty}" class="no-data">
+        Нет доходов за этот период
+      </div>
+    </div>
+    <div class="total-income">
+      Итого: <span th:text="${totalIncome != null ? totalIncome + ' ₽' : '0 ₽'}"></span>
+    </div>
+  </div>
+</div>
+
+<script th:if="${incomeByCategory != null and not incomeByCategory.isEmpty()}">
+  const ctx = document.getElementById('incomeChart').getContext('2d');
+
+  // Безопасная подготовка данных для диаграммы
+  const labels = [
+      <th:block th:each="entry : ${incomeByCategory?.entrySet() ?: []}">
+          [[${entry?.key?.DisplayName ?: 'Без категории'}]],
+      </th:block>
+  ];
+
+  const data = [
+      <th:block th:each="entry : ${incomeByCategory?.entrySet() ?: []}">
+          [[${entry?.value ?: 0}]],
+      </th:block>
+  ];
+
+  const backgroundColors = [
+      '#6C5CE7', '#00CEFF', '#00D27F', '#FFAA00', '#A78BFA',
+      '#67E8F9', '#FF3D71', '#8B5CF6', '#EC4899'
+  ].slice(0, Math.max(data.length, 1));
+
+  // Проверка перед созданием диаграммы
+  if (labels.length > 0 && data.length > 0) {
+      new Chart(ctx, {
+          type: 'pie',
+          data: {
+              labels: labels,
+              datasets: [{
+                  data: data,
+                  backgroundColor: backgroundColors,
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      position: 'right',
+                  },
+                  tooltip: {
+                      callbacks: {
+                          label: function(context) {
+                              return context.label + ': ' + context.raw + ' ₽';
+                          }
+                      }
+                  }
+              }
+          }
+      });
+  }
+</script>
+
+<script>
+  // Переключение темы
+  const themeToggle = document.getElementById('theme-toggle');
+  const body = document.body;
+
+  // Проверяем сохраненную тему в localStorage
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+      body.classList.add('dark-mode');
+      themeToggle.checked = true;
+  }
+
+  // Обработчик переключения темы
+  themeToggle.addEventListener('change', function() {
+      if (this.checked) {
+          body.classList.add('dark-mode');
+          localStorage.setItem('theme', 'dark');
+      } else {
+          body.classList.remove('dark-mode');
+          localStorage.setItem('theme', 'light');
+      }
+  });
+</script>
+</body>
+</html>

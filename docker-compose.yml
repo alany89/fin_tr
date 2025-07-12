@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    container_name: fin_tr_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fin_tr_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d fin_tr_db" ]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    container_name: fin_tr_app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/fin_tr_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      # Дублируем параметры для надежности
+      JAVA_TOOL_OPTIONS: "-Djava.awt.headless=true"
+      _JAVA_OPTIONS: "-Djava.awt.headless=true"
+      JAVA_OPTS: "-Djava.awt.headless=true -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+      # Spring-специфичные настройки
+      SPRING_PROFILES_ACTIVE: "prod"
+      # Настройки для работы с графикой
+      JAVA_AWT_HEADLESS: "true"
+    # Ограничение ресурсов (опционально)
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+volumes:
+  postgres_data:

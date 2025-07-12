@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход | Finance Tracker</title>
+  <style>
+    :root {
+        --bg-color: #121212;
+        --card-color: #1E1E1E;
+        --text-color: #E0E0E0;
+        --accent-color: #00C853;
+        --error-color: #FF5252;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .card {
+        background-color: var(--card-color);
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    h1 {
+        color: var(--accent-color);
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #333;
+        border-radius: 4px;
+        background-color: #2b2b2b;
+        color: var(--text-color);
+        font-size: 1rem;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+    }
+
+    button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: var(--accent-color);
+        color: #121212;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #00E676;
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    a {
+        color: var(--accent-color);
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .alert {
+        padding: 0.75rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    .alert-error {
+        background-color: var(--error-color);
+        color: white;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>Вход в систему</h1>
+
+  <!-- Сообщение об ошибке -->
+  <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+  <form action="/login" method="post">
+    <div class="form-group">
+      <label for="username">Имя пользователя</label>
+      <input type="text" id="username" name="username" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Пароль</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+
+    <button type="submit">Войти</button>
+  </form>
+
+  <div class="register-link">
+    Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+  </div>
+</div>
+</body>
+</html>

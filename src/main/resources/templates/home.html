@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансовый трекер | Главная</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --primary-dark: #5649C0;
+            --secondary: #00CEFF;
+            --success: #00D27F;
+            --danger: #FF3D71;
+            --warning: #FFAA00;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --bg-light: #F5F6FA;
+            --bg-card: #FFFFFF;
+            --border: #DFE6E9;
+            --white: #FFFFFF;
+
+            /* Темная тема */
+            --dark-primary: #A78BFA;
+            --dark-secondary: #67E8F9;
+            --dark-text-primary: #E2E8F0;
+            --dark-text-secondary: #94A3B8;
+            --dark-bg: #0F172A;
+            --dark-bg-card: #1E293B;
+            --dark-border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            font-family: 'Jost', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Хедер */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        body.dark-mode .header {
+            border-bottom-color: var(--dark-border);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Заголовок */
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        body.dark-mode .page-title {
+            background: linear-gradient(90deg, var(--dark-primary), var(--dark-secondary));
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+
+        body.dark-mode .page-title::after {
+            background: linear-gradient(90deg, var(--dark-primary), var(--dark-secondary));
+        }
+
+        /* Основные карточки */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        body.dark-mode .card {
+            background-color: var(--dark-bg-card);
+            border-color: var(--dark-border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--primary);
+        }
+
+        body.dark-mode .card-title {
+            color: var(--dark-primary);
+        }
+
+        /* Кнопки */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Jost', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 6px rgba(108, 92, 231, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(108, 92, 231, 0.3);
+        }
+
+        body.dark-mode .btn-primary {
+            background-color: var(--dark-primary);
+            box-shadow: 0 4px 6px rgba(167, 139, 250, 0.2);
+        }
+
+        body.dark-mode .btn-primary:hover {
+            background-color: #8B5CF6;
+        }
+
+        /* Категории */
+        .categories {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        .category {
+            flex: 1;
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .category {
+            background-color: var(--dark-bg-card);
+            border-color: var(--dark-border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.2);
+        }
+
+        body.dark-mode .category:hover {
+            box-shadow: 0 8px 25px rgba(167, 139, 250, 0.2);
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        body.dark-mode .category-title {
+            color: var(--dark-primary);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .categories {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                margin: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1 class="page-title">Добро пожаловать, <span th:text="${username}">Пользователь</span>!</h1>
+
+        <div class="header-actions">
+            <label class="theme-switcher">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Действия</h2>
+        <div style="text-align: center;">
+            <a href="/export" class="btn btn-primary">
+                <span class="material-icons" style="margin-right: 8px;">file_download</span>
+                Экспорт данных
+            </a>
+            <a href="/add-transaction" class="btn btn-primary">
+                <span class="material-icons" style="margin-right: 8px;">add</span>
+                Добавить транзакцию
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Доходы и расходы</h2>
+        <div class="categories">
+            <div class="category">
+                <h3 class="category-title">Доходы</h3>
+                <a href="/raise" class="btn btn-primary">Подробнее</a>
+            </div>
+            <div class="category">
+                <h3 class="category-title">Расходы</h3>
+                <a href="/expense" class="btn btn-primary">Подробнее</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Переключение темы
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    // Проверяем сохраненную тему в localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+        themeToggle.checked = true;
+    }
+
+    // Обработчик переключения темы
+    themeToggle.addEventListener('change', function() {
+        if (this.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+        }
+    });
+</script>
+</body>
+</html>
