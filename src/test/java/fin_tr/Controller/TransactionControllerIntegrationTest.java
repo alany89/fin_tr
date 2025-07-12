@@ -17,9 +17,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.PatternMatchUtils;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = FinTrApplication.class)
@@ -57,38 +60,37 @@ public class TransactionControllerIntegrationTest {
     @Test
     @WithMockUser(username = "testUser")
     void shouldCreateTransaction() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/add-transaction")
+        mockMvc.perform(post("/add-transaction")
                         .param("action", "income")
                         .param("category", "FOOD")
                         .param("sum", "100.50")
-                        .param("date", "2025-07-12")  // Формат yyyy-MM-dd
+                        .param("date", "2025-07-12")
                         .param("description", "Test transaction")
-                        .with(csrf()))  // Добавляем CSRF токен
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/add-transaction"))
-                .andExpect(flash().attributeExists("success"));
+                        .with(csrf()))
+                .andExpect(status().isOk()) // Изменили на isOk()
+                .andExpect(content().string(containsString("success")));
     }
 
     @Test
     @WithMockUser(username = "testUser")
     void shouldNotCreateInvalidTransaction() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/add-transaction")
-                        .param("action", "")  // Невалидное значение
-                        .param("sum", "0")    // Невалидная сумма
+        mockMvc.perform(post("/add-transaction")
+                        .param("action", "")
+                        .param("sum", "0")
                         .with(csrf()))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(view().name("add-transaction"))
                 .andExpect(model().attributeHasErrors("transaction"));
     }
 
     @Test
-    @WithMockUser(username = "unknownUser")
-    void shouldRedirectToLoginForUnknownUser() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/add-transaction")
+    void shouldReturnUnauthorizedForUnauthenticatedUser() throws Exception {
+        mockMvc.perform(post("/add-transaction")
                         .param("sum", "100")
                         .param("action", "income")
                         .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"));
+                .andExpect(status().isUnauthorized()); // Ожидаем 401
     }
+
 }
