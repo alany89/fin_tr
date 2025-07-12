@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансовый трекер | Экспорт данных</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C5CE7;
+            --primary-dark: #5649C0;
+            --secondary: #00CEFF;
+            --success: #00D27F;
+            --danger: #FF3D71;
+            --warning: #FFAA00;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --bg-light: #F5F6FA;
+            --bg-card: #FFFFFF;
+            --border: #DFE6E9;
+            --white: #FFFFFF;
+
+            /* Темная тема */
+            --dark-primary: #A78BFA;
+            --dark-secondary: #67E8F9;
+            --dark-text-primary: #E2E8F0;
+            --dark-text-secondary: #94A3B8;
+            --dark-bg: #0F172A;
+            --dark-bg-card: #1E293B;
+            --dark-border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            font-family: 'Jost', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Хедер */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        body.dark-mode .header {
+            border-bottom-color: var(--dark-border);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Кнопка назад */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--primary);
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(108, 92, 231, 0.2);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(108, 92, 231, 0.3);
+        }
+
+        body.dark-mode .back-btn {
+            background: var(--dark-primary);
+            box-shadow: 0 4px 6px rgba(167, 139, 250, 0.2);
+        }
+
+        /* Переключатель темы */
+        .theme-switcher {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .theme-switcher input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--white);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        body.dark-mode input:checked + .slider {
+            background-color: var(--dark-primary);
+        }
+
+        /* Заголовок */
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        body.dark-mode .page-title {
+            background: linear-gradient(90deg, var(--dark-primary), var(--dark-secondary));
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+
+        body.dark-mode .page-title::after {
+            background: linear-gradient(90deg, var(--dark-primary), var(--dark-secondary));
+        }
+
+        /* Основные карточки */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        body.dark-mode .card {
+            background-color: var(--dark-bg-card);
+            border-color: var(--dark-border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--primary);
+        }
+
+        body.dark-mode .card-title {
+            color: var(--dark-primary);
+        }
+
+        /* Радио кнопки */
+        .radio-group {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        body.dark-mode .radio-option input {
+            accent-color: var(--dark-primary);
+        }
+
+        .radio-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        body.dark-mode .radio-label {
+            color: var(--dark-text-primary);
+        }
+
+        /* Кнопки */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Jost', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 6px rgba(108, 92, 231, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(108, 92, 231, 0.3);
+        }
+
+        body.dark-mode .btn-primary {
+            background-color: var(--dark-primary);
+            box-shadow: 0 4px 6px rgba(167, 139, 250, 0.2);
+        }
+
+        body.dark-mode .btn-primary:hover {
+            background-color: #8B5CF6;
+        }
+
+        /* Индикатор загрузки */
+        .loader {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(108, 92, 231, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        body.dark-mode .spinner {
+            border: 4px solid rgba(167, 139, 250, 0.2);
+            border-top: 4px solid var(--dark-primary);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <a href="/home" class="back-btn">
+                <span class="material-icons">arrow_back</span>
+            </a>
+            <h1 class="page-title">Экспорт данных</h1>
+        </div>
+
+        <div class="header-actions">
+            <label class="theme-switcher">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Выберите формат отчета</h2>
+        <form id="export-form" method="post">
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="excel" name="format" value="excel" checked>
+                    <label for="excel" class="radio-label">Excel таблица (.xlsx)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="pdf" name="format" value="pdf">
+                    <label for="pdf" class="radio-label">PDF документ (.pdf)</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="export-btn">
+                <span class="material-icons" style="margin-right: 8px;">file_download</span>
+                Скачать отчет
+            </button>
+
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Формирование отчета...</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Переключение темы
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    // Проверяем сохраненную тему в localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+        themeToggle.checked = true;
+    }
+
+    // Обработчик переключения темы
+    themeToggle.addEventListener('change', function() {
+        if (this.checked) {
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+        }
+    });
+
+    // Обработчик формы экспорта
+    document.getElementById('export-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const format = document.querySelector('input[name="format"]:checked').value;
+        const form = this;
+        const loader = document.getElementById('loader');
+        const exportBtn = document.getElementById('export-btn');
+
+        // Показываем индикатор загрузки
+        exportBtn.disabled = true;
+        loader.style.display = 'block';
+
+        // Устанавливаем правильный action для формы
+        if (format === 'excel') {
+            form.action = '/export/excel';
+        } else if (format === 'pdf') {
+            form.action = '/export/pdf';
+        }
+
+        // Создаем скрытое iframe для загрузки файла
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.name = 'download-frame';
+        document.body.appendChild(iframe);
+
+        // Устанавливаем target формы на iframe
+        form.target = 'download-frame';
+
+        // Отправляем форму
+        form.submit();
+
+        // Скрываем индикатор загрузки через некоторое время
+        setTimeout(() => {
+            loader.style.display = 'none';
+            exportBtn.disabled = false;
+            document.body.removeChild(iframe);
+        }, 3000);
+    });
+</script>
+</body>
+</html>
