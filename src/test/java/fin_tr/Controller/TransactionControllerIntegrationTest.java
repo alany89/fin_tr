@@ -63,9 +63,9 @@ public class TransactionControllerIntegrationTest {
         mockMvc.perform(post("/add-transaction")
                         .param("action", "income")
                         .param("category", "FOOD")
-                        .param("sum", "100.50")
+                        .param("sum", "100")
                         .param("date", "2025-07-12")
-                        .param("description", "Test transaction")
+                        .param("opisaniya", "Test transaction")
                         .with(csrf()))
                 .andExpect(status().isOk()) // Изменили на isOk()
                 .andExpect(content().string(containsString("success")));
@@ -81,7 +81,7 @@ public class TransactionControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(view().name("add-transaction"))
-                .andExpect(model().attributeHasErrors("transaction"));
+                .andExpect(model().attributeHasErrors("transactionDTO"));
     }
 
     @Test
