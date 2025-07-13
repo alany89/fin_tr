@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Orbitron:wght@500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        /* Ваши стили остаются без изменений */
         :root {
             --primary: #6C5CE7;
             --primary-dark: #5649C0;
@@ -476,7 +477,7 @@
     <!-- Форма добавления транзакции -->
     <div class="card">
         <h2 class="card-title">Новая транзакция</h2>
-        <form th:action="@{/add-transaction}" th:object="${transaction}" method="post">
+        <form th:action="@{/add-transaction}" th:object="${transactionDTO}" method="post">
             <div class="form-group">
                 <label class="form-label">Тип операции</label>
                 <div class="radio-group">
@@ -502,7 +503,7 @@
 
             <div class="form-group">
                 <label class="form-label">Сумма</label>
-                <input type="number" class="form-control" th:field="*{sum}" step="0.01" min="0.01">
+                <input type="number" class="form-control" th:field="*{sum}" min="1">  <!-- Убираем step="0.01" -->
                 <div th:if="${#fields.hasErrors('sum')}" class="error-message" th:errors="*{sum}"></div>
             </div>
 
@@ -546,8 +547,8 @@
                 <td th:text="${t.opisaniya}"></td>
                 <td th:text="${t.sum} + ' ₽'"></td>
                 <td>
-                        <span th:class="${t.action == 'income' ? 'income' : 'expense'}"
-                              th:text="${t.action == 'income' ? 'Доход' : 'Расход'}"></span>
+                    <span th:class="${t.action == 'income' ? 'income' : 'expense'}"
+                          th:text="${t.action == 'income' ? 'Доход' : 'Расход'}"></span>
                 </td>
                 <td>
                     <div class="action-buttons">
@@ -557,7 +558,7 @@
                     </div>
                 </td>
             </tr>
-            <tr th:if="${transactions.empty}">
+            <tr th:if="${transactions == null or transactions.empty}">
                 <td colspan="6" style="text-align: center;">Нет транзакций</td>
             </tr>
             </tbody>

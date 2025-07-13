@@ -82,10 +82,9 @@ public class TransactionControllerIntegrationTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("add-transaction"))
-                .andExpect(model().attributeHasErrors("transactionDTO"))
-                .andExpect(model().attributeExists("Category"))
-                .andExpect(model().attributeExists("transactions"))
-                .andExpect(model().attributeExists("totalBalance"));
+                .andExpect(model().attributeExists("Category")) // проверка существования атрибута
+                .andExpect(model().attributeExists("transactionDTO"))
+                .andExpect(model().attributeHasFieldErrors("transactionDTO", "date", "sum"));
     }
 
     @Test

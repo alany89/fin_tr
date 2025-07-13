@@ -558,7 +558,7 @@
                     </div>
                 </td>
             </tr>
-            <tr th:if="${transactions.empty}">
+            <tr th:if="${transactions == null or transactions.empty}">
                 <td colspan="6" style="text-align: center;">Нет транзакций</td>
             </tr>
             </tbody>

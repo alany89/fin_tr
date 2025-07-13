@@ -75,15 +75,13 @@ public class ControllerTransaction {
             RedirectAttributes redirectAttributes,
             Model model) {
         if (bindingResult.hasErrors()){
+            model.addAttribute("Category", Transaction.Category.values());
             return "add-transaction";
         }
 
         logger.info("POST /transactions - Adding new transaction: {}", transactionDTO);
 
-        if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> {
-                logger.error("Validation error: {}", error.getDefaultMessage());
-            });}
+
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -93,6 +91,29 @@ public class ControllerTransaction {
             redirectAttributes.addFlashAttribute("error", "Пользователь не найден");
             return "redirect:/login";
         }
+        List<Transaction> transactions = transactionRepository.findByUser(user);
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
+        int totalBalance = 0;
+        int BalanceOfRaise = 0;
+        int BalanceOfTraty = 0;
+        for (Transaction transaction : transactions) {
+            if (transaction.getAction().equals("income")) {
+                totalBalance += transaction.getSum();
+                BalanceOfRaise += transaction.getSum();
+            } else {
+                totalBalance -= transaction.getSum();
+                BalanceOfTraty += transaction.getSum();
+            }
+        }
+        model.addAttribute("transactions", transactions);
+        model.addAttribute("totalBalance", totalBalance);
+        model.addAttribute("BalanceOfRaise", BalanceOfRaise);
+        model.addAttribute("BalanceOfTraty", BalanceOfTraty);
+        model.addAttribute("Category", Transaction.Category.values());
+
+
         Transaction transaction = new Transaction();
         // Маппим DTO в Entity
         transaction.setDate(transactionDTO.getDate());
