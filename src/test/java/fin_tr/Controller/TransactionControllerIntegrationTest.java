@@ -78,11 +78,14 @@ public class TransactionControllerIntegrationTest {
         mockMvc.perform(post("/add-transaction")
                         .param("action", "")
                         .param("sum", "0")
+                        .param("opisaniya", "")
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("add-transaction"))
                 .andExpect(model().attributeHasErrors("transactionDTO"))
-                .andExpect(model().attributeExists("Category"));
+                .andExpect(model().attributeExists("Category"))
+                .andExpect(model().attributeExists("transactions"))
+                .andExpect(model().attributeExists("totalBalance"));
     }
 
     @Test
