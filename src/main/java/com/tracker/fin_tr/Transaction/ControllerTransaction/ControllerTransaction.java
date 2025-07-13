@@ -2,6 +2,7 @@ package com.tracker.fin_tr.Transaction.ControllerTransaction;
 
 import com.tracker.fin_tr.Transaction.Repository.TransactionRepository;
 import com.tracker.fin_tr.Transaction.Transaction;
+import com.tracker.fin_tr.Transaction.TransactionDTO;
 import com.tracker.fin_tr.User.Repository.UserRepository;
 import com.tracker.fin_tr.User.User;
 import lombok.AllArgsConstructor;
@@ -63,61 +64,27 @@ public class ControllerTransaction {
         model.addAttribute("BalanceOfRaise", BalanceOfRaise);
         model.addAttribute("BalanceOfTraty", BalanceOfTraty);
         model.addAttribute("Category", Transaction.Category.values());
-        model.addAttribute("transaction", new Transaction());
+        model.addAttribute("transactionDTO", new TransactionDTO());
 
         return "add-transaction";
     }
     @PostMapping("/add-transaction")
     public String addTransaction(
-            @Validated @ModelAttribute("transaction") Transaction transaction,
+            @Validated @ModelAttribute("transactionDTO") TransactionDTO transactionDTO ,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Model model) {
+        if (bindingResult.hasErrors()){
+            return "add-transaction";
+        }
 
-        logger.info("POST /transactions - Adding new transaction: {}", transaction);
+        logger.info("POST /transactions - Adding new transaction: {}", transactionDTO);
 
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> {
                 logger.error("Validation error: {}", error.getDefaultMessage());
-            });
+            });}
 
-            // Добавляем необходимые атрибуты в модель перед возвратом страницы
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            User user = userRepository.findByUsername(username);
-
-            List<Transaction> transactions = transactionRepository.findByUserId(user.getId());
-            if (transactions == null) {
-                transactions = new ArrayList<>();
-            }
-
-            int totalBalance = 0;
-            int BalanceOfTraty = 0;
-            int BalanceOfRaise = 0;
-            for (Transaction t : transactions) {
-                if (t.getAction().equals("income")){
-                    totalBalance += t.getSum();
-                    BalanceOfRaise += t.getSum();
-                }
-                else {
-                    totalBalance -= t.getSum();
-                    BalanceOfTraty += t.getSum();
-                }
-            }
-
-            model.addAttribute("transactions", transactions);
-            model.addAttribute("totalBalance", totalBalance);
-            model.addAttribute("BalanceOfRaise", BalanceOfRaise);
-            model.addAttribute("BalanceOfTraty", BalanceOfTraty);
-            model.addAttribute("Category", Transaction.Category.values());
-
-            // Обязательно добавляем transaction обратно в модель
-            model.addAttribute("transaction", transaction);
-
-            return "add-transaction";
-        }
-
-        // Остальной код метода остается без изменений
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userRepository.findByUsername(username);
@@ -126,10 +93,17 @@ public class ControllerTransaction {
             redirectAttributes.addFlashAttribute("error", "Пользователь не найден");
             return "redirect:/login";
         }
-
+        Transaction transaction = new Transaction();
+        // Маппим DTO в Entity
+        transaction.setDate(transactionDTO.getDate());
+        transaction.setOpisaniya(transactionDTO.getOpisaniya());
+        transaction.setSum(transactionDTO.getSum());
+        transaction.setAction(transactionDTO.getAction());
+        transaction.setCategory(transactionDTO.getCategory());
         transaction.setUser(user);
-        transaction.setBalanceOfTraty(transaction.getAction().equals("expense") ? transaction.getSum() : 0);
-        transaction.setBalanceOfRaise(transaction.getAction().equals("income") ? transaction.getSum() : 0);
+
+        transaction.setBalanceOfTraty(transactionDTO.getAction().equals("expense") ? transactionDTO.getSum() : 0);
+        transaction.setBalanceOfRaise(transactionDTO.getAction().equals("income") ? transactionDTO.getSum() : 0);
 
         transactionRepository.save(transaction);
 

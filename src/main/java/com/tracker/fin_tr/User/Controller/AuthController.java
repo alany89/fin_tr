@@ -1,8 +1,11 @@
 package com.tracker.fin_tr.User.Controller;
 
+import com.tracker.fin_tr.User.LoginDTO;
 import com.tracker.fin_tr.User.Repository.UserRepository;
 import com.tracker.fin_tr.User.User;
 import com.tracker.fin_tr.User.Service.UserService;
+import com.tracker.fin_tr.User.UserDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,22 +38,21 @@ public class AuthController {
 
     @PostMapping("/register")
     public String handleRegistration(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam String email,
-            RedirectAttributes redirectAttributes,
-            @ModelAttribute User user
-    ) {
+            @Valid @ModelAttribute("userDTO")UserDTO userDTO,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+            ) {
+        if(bindingResult.hasErrors()) return "register";
         try {
-            userService.registerUserr(username, email, password);
-            log.info("POST /register Регистрация прошла успешно: {}", user);
+            userService.registerUserr(userDTO);
+            log.info("POST /register Регистрация прошла успешно: {}", userDTO.getUsername());
             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                user.getUsername(),
-                user.getPassword()
+                userDTO.getUsername(),
+                userDTO.getPassword()
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("POST /register Пользователь зареган: {}", username);
-            return "redirect:/home";
+            log.info("POST /register Пользователь зареган: {}", userDTO.getUsername());
+            return "redirect:/login";
         } catch (Exception e) {
             log.error("POST /register - Ошибка при создании пользователя: {}", e.getMessage());
             return "redirect:/register";
@@ -67,15 +70,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public String handleLogin(
-            @RequestParam String username,
-            @RequestParam String password,
+            @Valid @ModelAttribute("LoginDTO") LoginDTO loginDTO,
+            BindingResult bindingResult,
             RedirectAttributes redirectAttributes
+
     ) {
-        // 1. Находим пользователя в БД
-        User user = repository.findByUsername(username);
+        if (bindingResult.hasErrors()) return "login";
+
+        User user = repository.findByUsername(loginDTO.getUsername());
 
         // 2. Если пользователь не найден или пароль неверный
-        if (user == null || !userService.checkPassword(user, password)) {
+        if (user == null || !userService.checkPassword(user, loginDTO.getPassword())) {
             redirectAttributes.addAttribute("error", true);
             log.error("проблема регистрации");
             return "redirect:/login";

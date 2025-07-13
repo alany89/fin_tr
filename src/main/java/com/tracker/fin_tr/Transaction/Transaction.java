@@ -40,7 +40,7 @@ public class Transaction {
     @Size(max = 100, message = "не может быть больше 100")
     private String opisaniya;
     @NotNull(message = "Amount cannot be null")
-    @DecimalMin(value = "0.01", message = "Amount must be at least 0.01")
+    @Min(value = 1, message = "Amount must be at least 1")
     private int sum;
     @NotBlank(message = "описание не может быть пустым")
     @Size(max = 100, message = "не может быть больше 100")
