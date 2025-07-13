@@ -67,8 +67,9 @@ public class TransactionControllerIntegrationTest {
                         .param("date", "2025-07-12")
                         .param("opisaniya", "Test transaction")
                         .with(csrf()))
-                .andExpect(status().isOk()) // Изменили на isOk()
-                .andExpect(content().string(containsString("success")));
+                .andExpect(status().is3xxRedirection()) // Ожидаем редирект
+                .andExpect(redirectedUrl("/add-transaction"))
+                .andExpect(flash().attributeExists("success"));
     }
 
     @Test
@@ -79,9 +80,9 @@ public class TransactionControllerIntegrationTest {
                         .param("sum", "0")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(view().name("add-transaction"))
-                .andExpect(model().attributeHasErrors("transactionDTO"));
+                .andExpect(model().attributeHasErrors("transactionDTO"))
+                .andExpect(model().attributeExists("Category"));
     }
 
     @Test
