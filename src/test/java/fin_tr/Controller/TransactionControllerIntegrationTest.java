@@ -1,10 +1,9 @@
 package fin_tr.Controller;
 
 import com.tracker.fin_tr.FinTrApplication;
-import com.tracker.fin_tr.Transaction.Repository.TransactionRepository;
-import com.tracker.fin_tr.Transaction.Transaction;
-import com.tracker.fin_tr.User.Repository.UserRepository;
-import com.tracker.fin_tr.User.User;
+import com.tracker.fin_tr.Repository.TransactionRepository;
+import com.tracker.fin_tr.Repository.UserRepository;
+import com.tracker.fin_tr.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.assertj.MockMvcTester;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.PatternMatchUtils;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

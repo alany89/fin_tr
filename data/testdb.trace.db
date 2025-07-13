@@ -83,7 +83,7 @@ insert into public.users (email,password,username,id) values (?,?,?,default) [42
 	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
 	at jdk.proxy2/jdk.proxy2.$Proxy120.save(Unknown Source)
-	at com.tracker.fin_tr.User.Controller.AuthController.handleForm(AuthController.java:29)
+	at com.tracker.fin_tr.controller.AuthController.handleForm(AuthController.java:29)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
 	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258)
@@ -270,7 +270,7 @@ insert into public.users (email,password,username,id) values (?,?,?,default) [42
 	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
 	at jdk.proxy2/jdk.proxy2.$Proxy120.save(Unknown Source)
-	at com.tracker.fin_tr.User.Controller.AuthController.handleForm(AuthController.java:29)
+	at com.tracker.fin_tr.controller.AuthController.handleForm(AuthController.java:29)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
 	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258)
@@ -573,7 +573,7 @@ insert into public.users (email,password,username,id) values (?,?,?,default) [42
 	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
 	at jdk.proxy2/jdk.proxy2.$Proxy120.save(Unknown Source)
-	at com.tracker.fin_tr.User.Controller.AuthController.handleForm(AuthController.java:31)
+	at com.tracker.fin_tr.controller.AuthController.handleForm(AuthController.java:31)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
 	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258)
@@ -760,7 +760,7 @@ insert into public.users (email,password,username,id) values (?,?,?,default) [42
 	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
 	at jdk.proxy2/jdk.proxy2.$Proxy120.save(Unknown Source)
-	at com.tracker.fin_tr.User.Controller.AuthController.handleForm(AuthController.java:31)
+	at com.tracker.fin_tr.controller.AuthController.handleForm(AuthController.java:31)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
 	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258)
@@ -2130,7 +2130,8 @@ Feature not supported: "CHARACTER VARYING(255)"; SQL statement:
         email varchar(255) not null,
         password varchar(255) not null,
         username varchar(255) not null,
-        primary key (id) [50100-232]
+        primary key (id)
+ [50100-232]
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:568)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
 	at org.h2.message.DbException.get(DbException.java:223)
