@@ -1,6 +1,7 @@
 package com.tracker.fin_tr.controllerDTO;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,5 +12,6 @@ public class LoginDTO {
     private String username;
 
     @NotBlank(message = "Пароль не может быть пустым")
+    @Size(min = 6)
     private String password;
 }
