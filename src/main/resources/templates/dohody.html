@@ -335,12 +335,12 @@
 
     <div class="header-actions">
       <div class="month-navigation">
-        <a th:href="@{/dohody(year=${prevYearMonth.year},month=${prevYearMonth.monthValue})}"
+        <a th:href="@{/raise(year=${prevYearMonth.year},month=${prevYearMonth.monthValue})}"
            class="nav-button">
           <span class="material-icons">arrow_back</span>
         </a>
         <div class="month-title" th:text="${#temporals.format(currentYearMonth.atDay(1), 'MMMM yyyy', new java.util.Locale('ru'))}"></div>
-        <a th:href="@{/dohody(year=${nextYearMonth.year},month=${nextYearMonth.monthValue})}"
+        <a th:href="@{/raise(year=${nextYearMonth.year},month=${nextYearMonth.monthValue})}"
            class="nav-button">
           <span class="material-icons">arrow_forward</span>
         </a>
